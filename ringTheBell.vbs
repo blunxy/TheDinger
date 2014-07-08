@@ -9,17 +9,57 @@
 ' 2014-JUL-07
 '
 
-Const LISTENER_URL = "http://valid-hall-624.appspot.com"
-'Const LISTENER_URL = "http://localhost:9080" 
+'Const LISTENER_URL = "http://valid-hall-624.appspot.com"
+Const HAND_UP = "Up"
+Const HAND_DOWN = "Down"
 
-On Error Resume Next
+Const LISTENER_URL = "http://localhost:9080" 
+
+' On Error Resume Next
 dda = dingDataEntity()
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!" & Err.Number
 Else
-   Call ringBell(dda) 
+    Call ringBell(dda) 
+    Call toggleHandState()
 End If
 
+
+Function getOriginState()
+    If (handIsUp()) Then getOriginState = HAND_UP Else getOriginState = HAND_DOWN
+End Function
+
+    
+Function getDestState()
+    If (handIsUp()) Then getDestState = HAND_DOWN Else getDestState = HAND_UP
+End Function
+
+
+Sub toggleHandState()
+    Dim oldFileName, newFileName
+    Call setNames(oldFileName, newFileName)
+    Call renameFile(oldFileName, newFileName)
+End Sub
+
+Sub renameFile(oldFileName, newFileName)
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If fso.FileExists(oldFileName) Then
+        Set stateFile = fso.GetFile(oldFileName)
+        stateFile.Move(newFileName)
+    Else
+        fso.createTextFile(newFileName)
+    End If
+End Sub
+
+Sub setNames(oldFileName, newFileName)
+    oldFileName = "hand" + getOriginState() + ".state"
+    newFileName = "hand" + getDestState() + ".state"
+End Sub
+
+Function handIsUp()
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    handIsUp = fso.FileExists("handUp.state")
+End Function
 
 Sub ringBell(dingDataEntity)
     Set xmlhttp = CreateObject("MSXML2.XMLHTTP")
@@ -30,7 +70,7 @@ End Sub
 
 
 Function dingDataEntity()
-    dingDataEntity = "machine=" + machineName() + "&user=" + fullUserName()
+    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName()
 End Function
 
 
@@ -41,8 +81,15 @@ End Function
 
 
 Function fullUserName()
+    fullUserName = user().Get("displayName")
+End Function
+        
+Function userName()
+    userName = user().Get("sAMAccountName")
+End Function
+        
+Function user()
     Set adSysInfo = CreateObject("ADSystemInfo")
-    userName = adSysInfo.UserName
-    Set user = GetObject("LDAP://" & userName)
-    fullUserName = user.Get("displayName")
+    uName = adSysInfo.UserName
+    Set user = GetObject("LDAP://" & uName)
 End Function
