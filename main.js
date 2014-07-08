@@ -7,9 +7,9 @@
 
 // Simple jQuery event handler
 $(document).ready(function () {
-    "use strict";
-    $("#clickMe").click(function (e) {
-        alert("hello world!");
+
+    $("#message-container ol").on("click", "li", function () {
+        $(this).remove();
     });
 
 
@@ -21,8 +21,12 @@ $(document).ready(function () {
     var channel = pusher.subscribe('private-talk');
     
     
-     channel.bind('my_event', function(data) {
-    			alert(data.msg);
+     channel.bind('up_event', function(data) {
+    			$("#message-container ol").append('<li id="' + data['machine'] + '">' + data['msg'] + '</li>');
+    		});
+    
+    channel.bind('down_event', function(data) {
+    			$('#' + data['machine']).remove();
     		});
     
     channel.bind('pusher:subscription_error', function(status) {

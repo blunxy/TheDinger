@@ -9,7 +9,7 @@
 ' 2014-JUL-07
 '
 
-'Const LISTENER_URL = "http://valid-hall-624.appspot.com"
+' Const LISTENER_URL = "http://valid-hall-624.appspot.com"
 Const LISTENER_URL = "http://localhost:9080" 
 
 Const HAND_UP = "Up"
@@ -119,8 +119,6 @@ Sub toggleShortcutIcon()
     Set objFolderItem = objFolder.ParseName("Ding!.lnk")
     Set objShortcut = objFolderItem.GetLink
 
-   
-    'objShortcut.SetIconLocation "C:\Windows\System32\SHELL32.dll", getTargetIconIndex()
     objShortcut.SetIconLocation getFullTargetIconPath(),0
     objShortcut.Save
 End Sub
