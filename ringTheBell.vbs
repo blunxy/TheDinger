@@ -9,7 +9,8 @@
 ' 2014-JUL-07
 '
 
-Const LISTENER_URL = "http://valid-hall-624.appspot.com" ' "http://localhost:9080" 
+Const LISTENER_URL = "http://valid-hall-624.appspot.com"
+'Const LISTENER_URL = "http://localhost:9080" 
 
 On Error Resume Next
 dda = dingDataEntity()
