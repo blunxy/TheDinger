@@ -10,56 +10,36 @@
 '
 
 'Const LISTENER_URL = "http://valid-hall-624.appspot.com"
-Const HAND_UP = "Up"
-Const HAND_DOWN = "Down"
-
 Const LISTENER_URL = "http://localhost:9080" 
 
-' On Error Resume Next
+Const HAND_UP = "Up"
+Const HAND_DOWN = "Down"
+Const DESKTOP = &H10&
+Const UP_ICON_INDEX = 12
+Const DOWN_ICON_INDEX = 13
+
+On Error Resume Next
+
+
 dda = dingDataEntity()
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!" & Err.Number
 Else
     Call ringBell(dda) 
     Call toggleHandState()
+    Call toggleShortcutIcon()
 End If
 
 
-Function getOriginState()
-    If (handIsUp()) Then getOriginState = HAND_UP Else getOriginState = HAND_DOWN
+' ===================================
+' = PROCEDURES
+' ===================================
+
+
+Function dingDataEntity()
+    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName()
 End Function
 
-    
-Function getDestState()
-    If (handIsUp()) Then getDestState = HAND_DOWN Else getDestState = HAND_UP
-End Function
-
-
-Sub toggleHandState()
-    Dim oldFileName, newFileName
-    Call setNames(oldFileName, newFileName)
-    Call renameFile(oldFileName, newFileName)
-End Sub
-
-Sub renameFile(oldFileName, newFileName)
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    If fso.FileExists(oldFileName) Then
-        Set stateFile = fso.GetFile(oldFileName)
-        stateFile.Move(newFileName)
-    Else
-        fso.createTextFile(newFileName)
-    End If
-End Sub
-
-Sub setNames(oldFileName, newFileName)
-    oldFileName = "hand" + getOriginState() + ".state"
-    newFileName = "hand" + getDestState() + ".state"
-End Sub
-
-Function handIsUp()
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    handIsUp = fso.FileExists("handUp.state")
-End Function
 
 Sub ringBell(dingDataEntity)
     Set xmlhttp = CreateObject("MSXML2.XMLHTTP")
@@ -67,11 +47,6 @@ Sub ringBell(dingDataEntity)
     xmlhttp.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
     xmlhttp.send dingDataEntity
 End Sub
-
-
-Function dingDataEntity()
-    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName()
-End Function
 
 
 Function machineName()
@@ -83,13 +58,73 @@ End Function
 Function fullUserName()
     fullUserName = user().Get("displayName")
 End Function
-        
+
+
 Function userName()
     userName = user().Get("sAMAccountName")
 End Function
-        
+
+
 Function user()
     Set adSysInfo = CreateObject("ADSystemInfo")
     uName = adSysInfo.UserName
     Set user = GetObject("LDAP://" & uName)
 End Function
+
+
+Sub toggleHandState()
+    Dim oldFileName, newFileName
+    Call setNames(oldFileName, newFileName)
+    Call renameFile(oldFileName, newFileName)
+End Sub
+
+
+Sub renameFile(oldFileName, newFileName)
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If fso.FileExists(oldFileName) Then
+        Set stateFile = fso.GetFile(oldFileName)
+        stateFile.Move(newFileName)
+    Else
+        fso.createTextFile(newFileName)
+    End If
+End Sub
+
+
+Sub setNames(oldFileName, newFileName)
+    oldFileName = "hand" + getOriginState() + ".state"
+    newFileName = "hand" + getDestState() + ".state"
+End Sub
+
+
+Function getOriginState()
+    If (handIsUp()) Then getOriginState = HAND_UP Else getOriginState = HAND_DOWN
+End Function
+
+
+Function getDestState()
+    If (handIsUp()) Then getDestState = HAND_DOWN Else getDestState = HAND_UP
+End Function
+
+
+Function handIsUp()
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    handIsUp = fso.FileExists("handUp.state")
+End Function
+
+
+Sub toggleShortcutIcon()
+    Set objShell = CreateObject("Shell.Application")
+    Set objFolder = objShell.NameSpace(DESKTOP)
+
+    Set objFolderItem = objFolder.ParseName("Ding!.lnk")
+    Set objShortcut = objFolderItem.GetLink
+
+    objShortcut.SetIconLocation "C:\Windows\System32\SHELL32.dll", getTargetIconIndex()
+    objShortcut.Save
+End Sub
+
+
+Function getTargetIconIndex()
+    If (handIsUp()) Then getTargetIconIndex = DOWN_ICON_INDEX Else getTargetIconIndex = UP_ICON_INDEX
+End Function
+
