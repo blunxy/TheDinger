@@ -15,10 +15,10 @@ Const LISTENER_URL = "http://localhost:9080"
 Const HAND_UP = "Up"
 Const HAND_DOWN = "Down"
 Const DESKTOP = &H10&
-Const UP_ICON_INDEX = 12
-Const DOWN_ICON_INDEX = 13
+Const UP_ICON = "hand-active.ico"
+Const DOWN_ICON = "hand-inactive.ico"
 
-On Error Resume Next
+'On Error Resume Next
 
 
 dda = dingDataEntity()
@@ -119,12 +119,16 @@ Sub toggleShortcutIcon()
     Set objFolderItem = objFolder.ParseName("Ding!.lnk")
     Set objShortcut = objFolderItem.GetLink
 
-    objShortcut.SetIconLocation "C:\Windows\System32\SHELL32.dll", getTargetIconIndex()
+   
+    'objShortcut.SetIconLocation "C:\Windows\System32\SHELL32.dll", getTargetIconIndex()
+    objShortcut.SetIconLocation getFullTargetIconPath(),0
     objShortcut.Save
 End Sub
 
 
-Function getTargetIconIndex()
-    If (handIsUp()) Then getTargetIconIndex = DOWN_ICON_INDEX Else getTargetIconIndex = UP_ICON_INDEX
+Function getFullTargetIconPath()
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    currDir = fso.GetAbsolutePathName(".") + "\"
+    If (handIsUp()) Then getFullTargetIconPath = (currDir & UP_ICON) Else getFullTargetIconPath = (currDir & DOWN_ICON)
 End Function
 
