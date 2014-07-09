@@ -20,7 +20,6 @@ Const DOWN_ICON = "hand-inactive.ico"
 
 'On Error Resume Next
 
-
 dda = dingDataEntity()
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!" & Err.Number
@@ -30,6 +29,21 @@ Else
     Call toggleShortcutIcon()
 End If
 
+
+Sub putHandUp()
+    Set shell = WScript.CreateObject( "WScript.Shell" )
+    shell.RegWrite "HKCU\HandsUp\", "T", "REG_SZ"
+End Sub
+    
+Sub putHandDown()
+    Set shell = WScript.CreateObject( "WScript.Shell" )
+    shell.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
+End Sub
+
+Function isHandUp()
+    Set shell = WScript.CreateObject( "WScript.Shell" )
+    If (shell.RegRead("HKCU\HandsUp\") = "T") Then isHandUp = True Else isHandUp = False
+End Function
 
 ' ===================================
 ' = PROCEDURES
@@ -129,4 +143,6 @@ Function getFullTargetIconPath()
     currDir = fso.GetAbsolutePathName(".") + "\"
     If (handIsUp()) Then getFullTargetIconPath = (currDir & UP_ICON) Else getFullTargetIconPath = (currDir & DOWN_ICON)
 End Function
+
+            
 
