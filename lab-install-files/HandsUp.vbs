@@ -10,7 +10,7 @@
 '
 
 ' Const LISTENER_URL = "http://valid-hall-624.appspot.com"
-Const LISTENER_URL = "http://localhost:9080" 
+Const LISTENER_URL = "http://localhost:8080" 
 
 Const HAND_UP = "Up"
 Const HAND_DOWN = "Down"
@@ -21,13 +21,11 @@ On Error Resume Next
 
 Set SHELL = WScript.CreateObject( "WScript.Shell" )
 
-dda = dingDataEntity()
-
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!"
 Else
-    Call ringBell(dda) 
     Call toggleHandState()
+    Call ringBell(dingDataEntity())
     Call toggleShortcutIcon()
 End If
 
@@ -38,17 +36,17 @@ End If
 
 
 Function dingDataEntity()
-    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName() + "&guid=" + getGuid()
+    dingDataEntity = "state=" + getOriginalState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName() + "&guid=" + getGuid()
 End Function
 
 
-Function getGuid()
+Function generateGuid()
     Set TypeLib = CreateObject("Scriptlet.TypeLib")
     guid = TypeLib.Guid
     guid = Replace(guid, "{", "")
     guid = Replace(guid, "}", "")
     guid = Replace(guid, "-", "")
-    getGuid = Left(guid, 10)
+    generateGuid = Left(guid, 10)
 End Function
 
 
@@ -89,6 +87,7 @@ End Sub
 
 Sub putHandUp()
     SHELL.RegWrite "HKCU\HandsUp\", "T", "REG_SZ"
+    SHELL.RegWrite "HKCU\HandsUp\guid", generateGuid(), "REG_SZ"
 End Sub
 
 
@@ -96,9 +95,14 @@ Sub putHandDown()
     SHELL.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
 End Sub
 
+    
+Sub initRegistry()
+    SHELL.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
+    SHELL.RegWrite "HKCU\HandsUp\guid", "", "REG_SZ"
+End Sub
 
-Function getDestState()
-    If (handIsUp()) Then getDestState = HAND_DOWN Else getDestState = HAND_UP
+Function getOriginalState()
+    If (handIsUp()) Then getOriginalState = HAND_UP Else getOriginalState = HAND_DOWN
 End Function
 
 
@@ -106,12 +110,16 @@ Function handIsUp()
     On Error Resume Next
     regValue = SHELL.RegRead("HKCU\HandsUp\")
     If Err.Number <> 0 Then
-        Call putHandDown()
+        Call initRegistry()
         Err.Clear
     End If
     If (SHELL.RegRead("HKCU\HandsUp\") = "T") Then handIsUp = True Else handIsUp = False
 End Function
 
+            
+Function getGuid()
+    getGuid = SHELL.RegRead("HKCU\HandsUp\guid")
+End Function
 
 Sub toggleShortcutIcon()
     Set objShell = CreateObject("Shell.Application")

@@ -1,0 +1,25 @@
+application: valid-hall-624
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+
+handlers:
+- url: /
+  script: main.app
+
+- url: /lab_machine
+  script: lab.app
+
+- url: /trigger
+  script: trigger.app
+
+- url: /pusher/auth
+  script: pusher_auth.app
+
+- url: /pusher/presence_auth
+  script: pusher_presence_auth.app

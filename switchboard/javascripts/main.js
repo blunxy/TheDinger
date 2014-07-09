@@ -8,10 +8,6 @@
 // Simple jQuery event handler
 $(document).ready(function () {
 
-    $("#message-container ol").on("click", "li", function () {
-        $(this).remove();
-    });
-
 
     var pusher = new Pusher('58992988b1202996ed5e', {
         authTransport: 'jsonp',
@@ -22,20 +18,17 @@ $(document).ready(function () {
     
     
      channel.bind('up_event', function(data) {
-    			$("#message-container ol").append('<li id="' + data['machine'] + '">' + data['msg'] + '</li>');
+    			$("#message-container ol").append('<li id="' + data['guid'] + '">' + data['msg'] + '</li>');
     		});
     
     channel.bind('down_event', function(data) {
-    			$('#' + data['machine']).remove();
+    			$('#' + data['guid']).remove();
     		});
     
     channel.bind('pusher:subscription_error', function(status) {
-        if (status === 404) {
-            console.log("404");
-        } else if (status === 408) {
-            
-        } 
+           alert("Unable to Listen!");
     });
+    
     channel.bind('pusher:subscription_succeeded', function() {
         alert("Successfully Listening!");
     });
