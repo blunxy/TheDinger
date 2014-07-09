@@ -15,7 +15,13 @@ Const LISTENER_URL = "http://localhost:8080"
 Const HAND_UP = "Up"
 Const HAND_DOWN = "Down"
 Const DESKTOP = &H10&
+Const UP_ICON = "hand-active.ico"
+Const DOWN_ICON = "hand-inactive.ico"
 
+Const REG_KEY = "HKCU\HandsUp\"
+
+HAND_STATUS_REG_VAL = REG_KEY + "handstatus"
+GUID_REG_VAL = REG_KEY + "guid"
 
 On Error Resume Next
 
@@ -86,19 +92,19 @@ End Sub
 
 
 Sub putHandUp()
-    SHELL.RegWrite "HKCU\HandsUp\", "T", "REG_SZ"
-    SHELL.RegWrite "HKCU\HandsUp\guid", generateGuid(), "REG_SZ"
+    SHELL.RegWrite HAND_STATUS_REG_VAL, "T", "REG_SZ"
+    SHELL.RegWrite GUID_REG_VAL, generateGuid(), "REG_SZ"
 End Sub
 
 
 Sub putHandDown()
-    SHELL.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
+    SHELL.RegWrite HAND_STATUS_REG_VAL, "F", "REG_SZ"
 End Sub
 
     
 Sub initRegistry()
-    SHELL.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
-    SHELL.RegWrite "HKCU\HandsUp\guid", "", "REG_SZ"
+    SHELL.RegWrite HAND_STATUS_REG_VAL, "F", "REG_SZ"
+    SHELL.RegWrite GUID_REG_VAL, "", "REG_SZ"
 End Sub
 
 Function getOriginalState()
@@ -108,24 +114,25 @@ End Function
 
 Function handIsUp()
     On Error Resume Next
-    regValue = SHELL.RegRead("HKCU\HandsUp\")
+    regValue = SHELL.RegRead(REG_KEY)
     If Err.Number <> 0 Then
         Call initRegistry()
         Err.Clear
     End If
-    If (SHELL.RegRead("HKCU\HandsUp\") = "T") Then handIsUp = True Else handIsUp = False
+    If (SHELL.RegRead(HAND_STATUS_REG_VAL) = "T") Then handIsUp = True Else handIsUp = False
 End Function
 
             
 Function getGuid()
-    getGuid = SHELL.RegRead("HKCU\HandsUp\guid")
+    getGuid = SHELL.RegRead(GUID_REG_VAL)
 End Function
 
+            
 Sub toggleShortcutIcon()
     Set objShell = CreateObject("Shell.Application")
     Set objFolder = objShell.NameSpace(DESKTOP)
 
-    Set objFolderItem = objFolder.ParseName("Ding!.lnk")
+    Set objFolderItem = objFolder.ParseName("HandsUp!.lnk")
     Set objShortcut = objFolderItem.GetLink
 
     objShortcut.SetIconLocation getFullTargetIconPath(),0

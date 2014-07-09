@@ -21,16 +21,17 @@ class MainHandler(webapp.RequestHandler):
         full_name = self.request.get('fullName')
         dest_state = self.request.get('state')
         guid = self.request.get('guid')
+        now = datetime.datetime.now().strftime("%c")
     
         p = pusher.Pusher(app_id=config.app_id, key=config.app_key, secret=config.app_secret)
         
-        event_data = {'guid': guid, 'msg': machine_name + ':' + user_name, 'userName' : user_name, 'state': dest_state, 'machine': machine_name}
+        event_data = {'guid': guid, 'fullName' : full_name, 'state': dest_state, 'machine': machine_name, 'userName': user_name, 'timestamp': now}
         
         if dest_state == "Up":
             p['private-talk'].trigger('up_event', event_data)
         else:
             p['private-talk'].trigger('down_event',event_data)
-        now = datetime.datetime.now().strftime("%c")
+        
         logging.info(guid + ":" + dest_state + ":" + now + ":" + machine_name + ":" + user_name + ":" + full_name)
 
 app = webapp.WSGIApplication([('/', MainHandler)],

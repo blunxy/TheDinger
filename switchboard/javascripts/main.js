@@ -5,6 +5,11 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50 */
 /*global $, window, document */
 
+function timestamp() {
+    var now = new Date();
+    return now.toLocaleString();
+}
+
 // Simple jQuery event handler
 $(document).ready(function () {
 
@@ -17,8 +22,14 @@ $(document).ready(function () {
     var channel = pusher.subscribe('private-talk');
     
     
+    
+    
      channel.bind('up_event', function(data) {
-    			$("#message-container ol").append('<li id="' + data['guid'] + '">' + data['msg'] + '</li>');
+    			$("#message-container").append('<li class="list-group-item" id="' + data['guid'] + '">' +
+                                                  '<span class="label label-default">' + timestamp() + '</span>' +
+                                                  '<span class="label label-machine">' + data['machine'] + '</span>' +
+                                                  '<span class="label label-fullname">' + data['fullName'] + '</span>' +
+                                                  '</li>');
     		});
     
     channel.bind('down_event', function(data) {

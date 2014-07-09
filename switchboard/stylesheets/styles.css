@@ -1,11 +1,13 @@
-h1 {
-    color: red;
-}
 
-body {
+.label-machine {
     background-color: blue;
 }
 
-p {
-    color: orange;
+.label-fullname {
+    background-color: purple;
+}
+
+.label {
+    font-size: 1.4em;
+    margin-right: 1%;
 }
