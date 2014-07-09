@@ -15,14 +15,14 @@ Const LISTENER_URL = "http://localhost:9080"
 Const HAND_UP = "Up"
 Const HAND_DOWN = "Down"
 Const DESKTOP = &H10&
-Const UP_ICON = "hand-active.ico"
-Const DOWN_ICON = "hand-inactive.ico"
+
 
 On Error Resume Next
 
 Set SHELL = WScript.CreateObject( "WScript.Shell" )
 
 dda = dingDataEntity()
+
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!"
 Else
@@ -38,7 +38,17 @@ End If
 
 
 Function dingDataEntity()
-    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName()
+    dingDataEntity = "state=" + getDestState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName() + "&guid=" + getGuid()
+End Function
+
+
+Function getGuid()
+    Set TypeLib = CreateObject("Scriptlet.TypeLib")
+    guid = TypeLib.Guid
+    guid = Replace(guid, "{", "")
+    guid = Replace(guid, "}", "")
+    guid = Replace(guid, "-", "")
+    getGuid = Left(guid, 10)
 End Function
 
 

@@ -37,7 +37,7 @@ $(document).ready(function () {
         } 
     });
     channel.bind('pusher:subscription_succeeded', function() {
-        alert("Bingo!");
+        alert("Successfully Listening!");
     });
     
 });
