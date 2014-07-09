@@ -18,32 +18,19 @@ Const DESKTOP = &H10&
 Const UP_ICON = "hand-active.ico"
 Const DOWN_ICON = "hand-inactive.ico"
 
-'On Error Resume Next
+On Error Resume Next
+
+Set SHELL = WScript.CreateObject( "WScript.Shell" )
 
 dda = dingDataEntity()
 If Err.Number <> 0 Then
-   MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!" & Err.Number
+   MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!"
 Else
     Call ringBell(dda) 
     Call toggleHandState()
     Call toggleShortcutIcon()
 End If
 
-
-Sub putHandUp()
-    Set shell = WScript.CreateObject( "WScript.Shell" )
-    shell.RegWrite "HKCU\HandsUp\", "T", "REG_SZ"
-End Sub
-    
-Sub putHandDown()
-    Set shell = WScript.CreateObject( "WScript.Shell" )
-    shell.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
-End Sub
-
-Function isHandUp()
-    Set shell = WScript.CreateObject( "WScript.Shell" )
-    If (shell.RegRead("HKCU\HandsUp\") = "T") Then isHandUp = True Else isHandUp = False
-End Function
 
 ' ===================================
 ' = PROCEDURES
@@ -64,8 +51,7 @@ End Sub
 
 
 Function machineName()
-    Set shell = WScript.CreateObject( "WScript.Shell" )
-    machineName = shell.ExpandEnvironmentStrings( "%COMPUTERNAME%" )
+    machineName = SHELL.ExpandEnvironmentStrings( "%COMPUTERNAME%" )
 End Function
 
 
@@ -87,32 +73,18 @@ End Function
 
 
 Sub toggleHandState()
-    Dim oldFileName, newFileName
-    Call setNames(oldFileName, newFileName)
-    Call renameFile(oldFileName, newFileName)
+    If (handIsUp()) Then putHandDown() Else PutHandUp()
 End Sub
 
 
-Sub renameFile(oldFileName, newFileName)
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    If fso.FileExists(oldFileName) Then
-        Set stateFile = fso.GetFile(oldFileName)
-        stateFile.Move(newFileName)
-    Else
-        fso.createTextFile(newFileName)
-    End If
+Sub putHandUp()
+    SHELL.RegWrite "HKCU\HandsUp\", "T", "REG_SZ"
 End Sub
 
 
-Sub setNames(oldFileName, newFileName)
-    oldFileName = "hand" + getOriginState() + ".state"
-    newFileName = "hand" + getDestState() + ".state"
+Sub putHandDown()
+    SHELL.RegWrite "HKCU\HandsUp\", "F", "REG_SZ"
 End Sub
-
-
-Function getOriginState()
-    If (handIsUp()) Then getOriginState = HAND_UP Else getOriginState = HAND_DOWN
-End Function
 
 
 Function getDestState()
@@ -121,8 +93,13 @@ End Function
 
 
 Function handIsUp()
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    handIsUp = fso.FileExists("handUp.state")
+    On Error Resume Next
+    regValue = SHELL.RegRead("HKCU\HandsUp\")
+    If Err.Number <> 0 Then
+        Call putHandDown()
+        Err.Clear
+    End If
+    If (SHELL.RegRead("HKCU\HandsUp\") = "T") Then handIsUp = True Else handIsUp = False
 End Function
 
 
