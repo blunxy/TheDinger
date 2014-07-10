@@ -35,9 +35,9 @@ $(document).ready(function () {
     
      channel.bind('up_event', function(data) {
     			$("#message-container").append('<li class="list-group-item" id="' + data['guid'] + '">' +
-                                                  '<span class="label label-default">' + timestamp() + '</span>' +
-                                                  '<span class="label ' + getLabCss(data['machine']) + '">' + data['machine'] + '</span>' +
-                                                  '<span class="label label-fullname">' + data['fullName'] + '</span>' +
+                                                  '<span class="label timestamp">' + timestamp() + '</span>' +
+                                                  '<span class="label machine ' + getLabCss(data['machine']) + '">' + data['machine'] + '</span>' +
+                                                  '<span class="label fullname">' + data['fullName'] + '</span>' +
                                                   '</li>');
     		});
     

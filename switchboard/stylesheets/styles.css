@@ -1,10 +1,29 @@
+body  {
+    background-color: black;
+}
 
-.label-fullname {
- 
+h1 {
+    color: grey;
+}
+
+.label {
+    display: inline-block;
+}
+
+.timestamp {
+    width: 40%;
+}
+
+.machine {
+    width: 20%
+}
+
+.fullname {
+    width: 37%;
 }
 
 .list-group-item {
-
+    background-color: grey;
 }
 
 .label {
@@ -14,25 +33,25 @@
 }
 
 .b103 {
-    background-color: #CCC572;
+    background-color: #635766;
     color: black;
 }
 
 .b107 {
-    background-color: #F3FF84;
+    background-color: #007582;
     color: black;
 }
 
 .b160 {
-    background-color: #E144FF;
+    background-color: #F5E5C0;
     color: black;
 }
 
 .b162 {
-    background-color: #996675;
+    background-color: #F8AF1E;
     color: black;
 }
 
 .b215 {
-    background-color: C#C2254;
+    background-color: C#EA5930;
 }
