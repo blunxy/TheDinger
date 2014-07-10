@@ -10,6 +10,15 @@ function timestamp() {
     return now.toLocaleString();
 }
 
+function getLabCss(machine) {
+    if (machine.lastIndexOf("B103", 0) === 0) return "b103";
+    if (machine.lastIndexOf("B107", 0) === 0) return "b107";
+    if (machine.lastIndexOf("B160", 0) === 0) return "b160";
+    if (machine.lastIndexOf("B162", 0) === 0) return "b162";
+    if (machine.lastIndexOf("B215", 0) === 0) return "b215";
+    return "";
+}
+
 // Simple jQuery event handler
 $(document).ready(function () {
 
@@ -27,7 +36,7 @@ $(document).ready(function () {
      channel.bind('up_event', function(data) {
     			$("#message-container").append('<li class="list-group-item" id="' + data['guid'] + '">' +
                                                   '<span class="label label-default">' + timestamp() + '</span>' +
-                                                  '<span class="label label-machine">' + data['machine'] + '</span>' +
+                                                  '<span class="label ' + getLabCss(data['machine']) + '">' + data['machine'] + '</span>' +
                                                   '<span class="label label-fullname">' + data['fullName'] + '</span>' +
                                                   '</li>');
     		});

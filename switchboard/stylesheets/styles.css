@@ -1,13 +1,38 @@
 
-.label-machine {
-    background-color: blue;
+.label-fullname {
+ 
 }
 
-.label-fullname {
-    background-color: purple;
+.list-group-item {
+
 }
 
 .label {
     font-size: 1.4em;
     margin-right: 1%;
+    background-color: grey;
+}
+
+.b103 {
+    background-color: #CCC572;
+    color: black;
+}
+
+.b107 {
+    background-color: #F3FF84;
+    color: black;
+}
+
+.b160 {
+    background-color: #E144FF;
+    color: black;
+}
+
+.b162 {
+    background-color: #996675;
+    color: black;
+}
+
+.b215 {
+    background-color: C#C2254;
 }
