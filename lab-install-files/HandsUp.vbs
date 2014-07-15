@@ -9,23 +9,9 @@
 ' 2014-JUL-07
 '
 
-' Const LISTENER_URL = "http://valid-hall-624.appspot.com"
-Const LISTENER_URL = "http://localhost:8080" 
-
-Const HAND_UP = "Up"
-Const HAND_DOWN = "Down"
-Const DESKTOP = &H10&
-Const UP_ICON = "hand-active.ico"
-Const DOWN_ICON = "hand-inactive.ico"
-
-Const REG_KEY = "HKCU\HandsUp\"
-
-HAND_STATUS_REG_VAL = REG_KEY + "handstatus"
-GUID_REG_VAL = REG_KEY + "guid"
+Call Import("library.vbs")
 
 On Error Resume Next
-
-Set SHELL = WScript.CreateObject( "WScript.Shell" )
 
 If Err.Number <> 0 Then
    MsgBox "Unable to ding! Tell Jordan Pratt (jpratt@mtroyal.ca) that the Dinger is broken!"
@@ -36,115 +22,26 @@ Else
 End If
 
 
-' ===================================
-' = PROCEDURES
-' ===================================
+'===================================================
+'                 Import Code
+'===================================================
 
+Sub Import(strFile)
+ 
+    Set objFs = CreateObject("Scripting.FileSystemObject")
+    Set wshShell = CreateObject("Wscript.Shell")
 
-Function dingDataEntity()
-    dingDataEntity = "state=" + getOriginalState() + "&machine=" + machineName() + "&fullName=" + fullUserName() + "&userName=" + userName() + "&guid=" + getGuid()
-End Function
+    strFile = WshShell.ExpandEnvironmentStrings(strFile)
+    strFile = objFs.GetAbsolutePathName(strFile)
 
+    Set objFile = objFs.OpenTextFile(strFile)
 
-Function generateGuid()
-    Set TypeLib = CreateObject("Scriptlet.TypeLib")
-    guid = TypeLib.Guid
-    guid = Replace(guid, "{", "")
-    guid = Replace(guid, "}", "")
-    guid = Replace(guid, "-", "")
-    generateGuid = Left(guid, 10)
-End Function
+    strCode = objFile.ReadAll
 
+    objFile.Close
 
-Sub ringBell(dingDataEntity)
-    Set xmlhttp = CreateObject("MSXML2.XMLHTTP")
-    xmlhttp.Open "POST", LISTENER_URL, false
-    xmlhttp.setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
-    xmlhttp.send dingDataEntity
+    ExecuteGlobal strCode
+ 
 End Sub
-
-
-Function machineName()
-    machineName = SHELL.ExpandEnvironmentStrings( "%COMPUTERNAME%" )
-End Function
-
-
-Function fullUserName()
-    fullUserName = user().Get("displayName")
-End Function
-
-
-Function userName()
-    userName = user().Get("sAMAccountName")
-End Function
-
-
-Function user()
-    Set adSysInfo = CreateObject("ADSystemInfo")
-    uName = adSysInfo.UserName
-    Set user = GetObject("LDAP://" & uName)
-End Function
-
-
-Sub toggleHandState()
-    If (handIsUp()) Then putHandDown() Else PutHandUp()
-End Sub
-
-
-Sub putHandUp()
-    SHELL.RegWrite HAND_STATUS_REG_VAL, "T", "REG_SZ"
-    SHELL.RegWrite GUID_REG_VAL, generateGuid(), "REG_SZ"
-End Sub
-
-
-Sub putHandDown()
-    SHELL.RegWrite HAND_STATUS_REG_VAL, "F", "REG_SZ"
-End Sub
-
-    
-Sub initRegistry()
-    SHELL.RegWrite HAND_STATUS_REG_VAL, "F", "REG_SZ"
-    SHELL.RegWrite GUID_REG_VAL, "", "REG_SZ"
-End Sub
-
-Function getOriginalState()
-    If (handIsUp()) Then getOriginalState = HAND_UP Else getOriginalState = HAND_DOWN
-End Function
-
-
-Function handIsUp()
-    On Error Resume Next
-    regValue = SHELL.RegRead(REG_KEY)
-    If Err.Number <> 0 Then
-        Call initRegistry()
-        Err.Clear
-    End If
-    If (SHELL.RegRead(HAND_STATUS_REG_VAL) = "T") Then handIsUp = True Else handIsUp = False
-End Function
-
-            
-Function getGuid()
-    getGuid = SHELL.RegRead(GUID_REG_VAL)
-End Function
-
-            
-Sub toggleShortcutIcon()
-    Set objShell = CreateObject("Shell.Application")
-    Set objFolder = objShell.NameSpace(DESKTOP)
-
-    Set objFolderItem = objFolder.ParseName("HandsUp!.lnk")
-    Set objShortcut = objFolderItem.GetLink
-
-    objShortcut.SetIconLocation getFullTargetIconPath(),0
-    objShortcut.Save
-End Sub
-
-
-Function getFullTargetIconPath()
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    currDir = fso.GetAbsolutePathName(".") + "\"
-    If (handIsUp()) Then getFullTargetIconPath = (currDir & UP_ICON) Else getFullTargetIconPath = (currDir & DOWN_ICON)
-End Function
-
             
 
